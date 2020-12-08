@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "mocha",
-    "start": "node server.js"
+    "start": "nodemon"
   },
   "repository": {
     "type": "git",
@@ -20,8 +20,22 @@
   ],
   "author": "",
   "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "connect-ensure-login": "^0.1.1",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-handlebars": "^5.2.0",
+    "express-session": "^1.17.1",
+    "mongoose": "^5.11.5",
+    "passport": "^0.4.1",
+    "passport-local-mongoose": "^6.0.1"
+  },
   "bugs": {
     "url": "https://github.com/Make-School-Labs/BEW1.3-Authentication-With-Passport-Starter/issues"
   },
-  "homepage": "https://github.com/Make-School-Labs/BEW1.3-Authentication-With-Passport-Starter#readme"
+  "homepage": "https://github.com/Make-School-Labs/BEW1.3-Authentication-With-Passport-Starter#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.6"
+  }
 }
