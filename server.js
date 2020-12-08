@@ -4,6 +4,10 @@ const passport = require('passport');
 const mongoose = require('mongoose');
 assert = require("assert");
 const router = require('./routes/index.js')
+const User = require('./model/User');
+
+const GithubStrategy = require('passport-github').Strategy;
+const config = require('./oauth');
 
 
 require('dotenv').config()
@@ -45,17 +49,42 @@ app.use(express.urlencoded({extended: true}));
 // use expressionSession middleware to save the session cookie
 app.use(expressSession);
 
+// set up template engine
+app.engine('handlebars', exphbs({defaultLayout: 'main'}));
+app.set('view engine', 'handlebars');
+
 /*passport setup */
 //initialize passport and its session authentication
 app.use(passport.initialize());
 app.use(passport.session());
 
-// set up template engine
-app.engine('handlebars', exphbs({defaultLayout: 'main'}));
-app.set('view engine', 'handlebars');
+
+/* Passport Local Authentication */
+
+// make passport use local strategy. The createStrategy() is a helper method that comes from passport-local-mongoose
+passport.use(User.createStrategy());
+
+// sserialize and deserialize user instance
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+
+passport.use(new GithubStrategy({
+    clientID: config.github.clientID,
+    clientSecret: config.github.clientSecret,
+    callbackURL: config.github.callbackURL
+  },
+  function(accessToken, refreshToken, profile, done) {
+    process.nextTick(function () {
+      return done(null, profile);
+    });
+  }
+  ));
+
 
 // mount routes on express
 app.use(router)
+
 
 // route to catch all requests on endpoints not defined
 app.use('*', (req, res) => {
