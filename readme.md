@@ -36,7 +36,7 @@ npm install
 
 6. In `server.js` **line 83**, include the `passport.session()` function to restore authentication state from the session\.
 
-7. Complete the logout route in `routes/index.js`. Use the `req.lgout()` method passport provides. See refrence [here]()\.
+7. Complete the logout route in `routes/index.js`. Use the `req.lgout()` method passport provides. See refrence [here](http://www.passportjs.org/docs/logout/)\.
 
 8. Start the server. Make sure you are in the project's directory in our terminal:
 
@@ -58,4 +58,4 @@ Open a web browser and navigate to <http://localhost:3000/> to see the code in a
 
 ## Stretch Challenge
 
-- Try out using passport-github to do github oauth authentication with passport. See refrence [here]()
+- Try out using passport-github to do github oauth authentication with passport. See refrence [here](http://mherman.org/blog/2013/11/10/social-authentication-with-passport-dot-js/)
