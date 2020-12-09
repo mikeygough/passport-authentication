@@ -1,91 +1,92 @@
-const express = require('express');
+var express = require('express');
+var passport = require('passport');
 const exphbs = require('express-handlebars');
-const passport = require('passport');
-const mongoose = require('mongoose');
-assert = require("assert");
 const router = require('./routes/index.js')
-const User = require('./model/User');
-
+const LocalStrategy = require('passport-local').Strategy;
 const GithubStrategy = require('passport-github').Strategy;
-const config = require('./oauth');
-
+var db = require('./model/index');
 
 require('dotenv').config()
 
-// initialize the express app
-const app = express();
 
-// set up expressSession
+// TODO: Configure the local strategy for use by Passport.
+// Make sure you read instructions in the readme to follow through with the necessary steps
+
+passport.use(
+    /*instatiate the LocalStrategy object here. 
+    It takes an anonymous function as its only argument.
+    This function receives credentials(username and password) and cb(callback function) as  arguments -  */
+
+    db.findByUsername(username, (err, user) => {
+        if (err) {
+            return cb(err);
+        }
+        if (!user) {
+            return cb(null, false);
+        }
+        if (user.password != password) {
+            return cb(null, false);
+        }
+        // Return the callback function wuth a user object here
+        
+    })
+);
+
+// TODO: Stretch Challenge- Implememt authentication with passport using GitHub Strategy
+passport.use(new GithubStrategy());
+
+
+// TODO: Configure passport to serialize users with user id.
+
+/* In order to restore authentication state across HTTP requests, 
+Passport needs to serialize users into and deserialize users out of the session. 
+We would implement this by simply supplying the user id(user.id) when
+serializing, and querying the user record by id from the database when
+deserializing. */
+passport.serializeUser()
+
+passport.deserializeUser((id, cb)=> {
+    db.findById(id, (err, user)=>{
+        if (err) {
+            return cb(err);
+        }
+        cb(null, user);
+    })
+})
+
+
+
+// Create a new Express application.
+var app = express();
+
+// Configure view engine to render EJS templates.
+app.engine('handlebars', exphbs({ defaultLayout: 'main' }));
+app.set('view engine', 'handlebars');
+
+/* Use application-level middleware for common functionality, including parsing, and session handling.*/
+
+// use express.json and express.urlencoded methods to parse the request body
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// use expressionSession middleware to save the session cookie
 const expressSession = require('express-session')({
     secret: 'secret',
     resave: false,
     saveUninitialized: false
 });
-
-// set up mongoose for mongodb
-mongoose.connect(
-    process.env.MONGO_URL,
-    {
-      useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: false,
-    },
-    function(err, db) {
-      assert.equal(null, err);
-      console.log("Connected successfully to database");
-  
-      // db.close(); turn on for testing
-    }
-);
-mongoose.connection.on("error", console.error.bind(console, "MongoDB connection Error:"));
-mongoose.set("debug", true);
-
-// set up template engine
-app.engine('handlebars', exphbs({defaultLayout: 'main'}));
-app.set('view engine', 'handlebars');
-
-// use express.json and express.urlencoded methods to parse the request body
-app.use(express.json());
-app.use(express.urlencoded({extended: true}));
-
-// use expressionSession middleware to save the session cookie
 app.use(expressSession);
 
-// set up template engine
-app.engine('handlebars', exphbs({defaultLayout: 'main'}));
-app.set('view engine', 'handlebars');
+// TODO: Initialize Passport and restore authentication state, if any, from the
+// session.
+app.use(/*include the passport.initialize() function here*/);
+app.use(/*include the passport.session() function here*/);
 
-/*passport setup */
-//initialize passport and its session authentication
-app.use(passport.initialize());
-app.use(passport.session());
-
-
-/* Passport Local Authentication */
-
-// make passport use local strategy. The createStrategy() is a helper method that comes from passport-local-mongoose
-passport.use(User.createStrategy());
-
-// sserialize and deserialize user instance
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
-
-
-passport.use(new GithubStrategy({
-    clientID: config.github.clientID,
-    clientSecret: config.github.clientSecret,
-    callbackURL: config.github.callbackURL
-  },
-  function(accessToken, refreshToken, profile, done) {
-    process.nextTick(function () {
-      return done(null, profile);
-    });
-  }
-  ));
-
-
-// mount routes on express
+// use app middleware to mount routes to express
 app.use(router)
 
 
+/* Error Handling */
 // route to catch all requests on endpoints not defined
 app.use('*', (req, res) => {
     res.status(404).json({
@@ -98,14 +99,6 @@ app.use('*', (req, res) => {
     });
   });
   
-  // catch 404 and forward to error handler
-  
-  app.use((req, res, next) => {
-    const err = new Error('Not Found');
-    err.status = 404;
-    err.message = 'Sorry, this path doesn\'t exit';
-    next(err);
-});
 
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
@@ -114,6 +107,5 @@ app.use((err, req, res, next) => {
     });
   });
   
-
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`App listening on port ${port}`));

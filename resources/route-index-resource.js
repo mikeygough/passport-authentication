@@ -8,26 +8,27 @@ const passport = require('passport');
 
 // Define routes.
 
-// home route
 router.get('/',
     (req, res) => {
         res.render('home', { user: req.user });
     });
 
-// route to display login form
 router.get('/login',
     (req, res) => {
         res.render('login');
     });
-// Route to submit login form. It uses passport.authenticate
+
 router.post('/login',
     passport.authenticate('local', { failureRedirect: '/login' }),
     (req, res) => {
         res.redirect('/');
     });
 
-// Route to logout of passport session    
-router.get('/logout', /*implement the logout route with req.logout()*/);
+router.get('/logout',
+    (req, res) => {
+        req.logout();
+        res.redirect('/');
+    });
 
 
 // connectEnsureLogin acting as route guard to make sure the routes can't be accessed if not logged in
@@ -35,6 +36,15 @@ router.get('/profile',
     connectEnsureLogin.ensureLoggedIn(),
     (req, res) => {
         res.render('profile', { user: req.user });
+    });
+
+router.get('/auth/github',
+    passport.authenticate('github'),
+    (req, res) => { });
+router.get('/auth/github/callback',
+    passport.authenticate('github', { failureRedirect: '/login' }),
+     (req, res) => {
+        res.redirect('/');
     });
 
 module.exports = router;

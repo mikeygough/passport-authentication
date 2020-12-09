@@ -2,8 +2,11 @@ var express = require('express');
 var passport = require('passport');
 const exphbs = require('express-handlebars');
 const router = require('./routes/index.js')
-var Strategy = require('passport-local').Strategy;
+const LocalStrategy = require('passport-local').Strategy;
+const GithubStrategy = require('passport-github').Strategy;
 var db = require('./model/index');
+
+require('dotenv').config()
 
 
 // Configure the local strategy for use by Passport.
@@ -13,7 +16,7 @@ var db = require('./model/index');
 // that the password is correct and then invoke `next` with a user object, which
 // will be set at `req.user` in route handlers after authentication.
 
-passport.use(new Strategy((username, password, cb) => {
+passport.use(new LocalStrategy((username, password, cb) => {
     db.findByUsername(username, (err, user) => {
         if (err) {
             return cb(err);
@@ -28,7 +31,17 @@ passport.use(new Strategy((username, password, cb) => {
     });
 }));
 
-
+passport.use(new GithubStrategy({
+    clientID: process.env.github_clientID,
+    clientSecret: process.env.github_clientSecret,
+    callbackURL: process.env.github_callbackURL
+  },
+  (accessToken, refreshToken, profile, done) => {
+    process.nextTick(function () {
+      return done(null, profile);
+    });
+  }
+  ));
 
 
 // Configure Passport authenticated session persistence.
