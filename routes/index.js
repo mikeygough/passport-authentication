@@ -26,7 +26,7 @@ router.post('/login',
         res.redirect('/');
     });
 
-// Route to logout of passport session    
+// TODO: Complete route to logout of passport session    
 router.get('/logout', /*implement the logout route with req.logout()*/);
 
 

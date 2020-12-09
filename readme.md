@@ -2,7 +2,7 @@
 
 ---
 
-**At the end of this activity you should have successfully implemented Authentication with passport Local Strategy** (_username and password_)
+**At the end of this activity you should have successfully implemented Authentication with passport Local Strategy** (_username and password_) **by completing the TODOs in `server.js` and `routes/index.js`**.
 
 To install this starter code on your computer, clone the repository and install dependencies with
 
