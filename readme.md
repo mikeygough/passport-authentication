@@ -48,12 +48,12 @@ Open a web browser and navigate to <http://localhost:3000/> to see the code in a
 
 **Log in with either of these details:**
 
->username: **amy**
+>username: **amy**,
 >password: **strings**
 
 **OR**
 
->username: **anne**
+>username: **anne**,
 >password: **secret**
 
 ## Stretch Challenge
