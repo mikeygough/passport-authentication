@@ -4,51 +4,43 @@ const connectEnsureLogin = require('connect-ensure-login');
 const passport = require('passport');
 
 
-router.post('/login', (req, res, next) => {
 
-    // Authenticate with local strategy
-    passport.authenticate('local',
-        (err, user, info) => {
-            if (err) {
-                return next(err);
-            }
 
-            if (!user) {
-                return res.redirect('/login?info=' + info);
-            }
+// Define routes.
+router.get('/',
+    (req, res) => {
+        res.render('home', { user: req.user });
+    });
 
-            req.logIn(user, function (err) {
-                if (err) {
-                    return next(err);
-                }
+router.get('/login',
+    (req, res) => {
+        res.render('login');
+    });
 
-                return res.redirect('/');
-            });
+router.post('/login',
+    passport.authenticate('local', { failureRedirect: '/login' }),
+    (req, res) => {
+        res.redirect('/');
+    });
 
-        })(req, res, next);
-});
-// Route that renders the login page
-// When you visit the http://localhost:3000/login, you will see "Login Page"
-router.get('/login', (req, res) => {
-    res.render('login');
-});
-
+router.get('/logout',
+    (req, res) => {
+        req.logout();
+        res.redirect('/');
+    });
 // connectEnsureLogin acting as route guard to make sure the routes can't be accessed if not logged in
-
-router.get('/', (req, res) => {
-    res.send('Welcome');
-});
-
-router.get('/user', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
-    res.render('user', { user: req.user });
-});
+router.get('/profile',
+    connectEnsureLogin.ensureLoggedIn(),
+    (req, res) => {
+        res.render('profile', { user: req.user });
+    });
 
 router.get('/auth/github',
     passport.authenticate('github'),
-    function (req, res) { });
+    (req, res) => { });
 router.get('/auth/github/callback',
     passport.authenticate('github', { failureRedirect: '/login' }),
-    function (req, res) {
+     (req, res) => {
         res.redirect('/');
     });
 
